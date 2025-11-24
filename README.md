@@ -1,8 +1,7 @@
-<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>AlmaU Global Mobility Portal | Official Resource</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -24,14 +23,17 @@
             --radius: 6px; /* Строгие углы */
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            margin: 0;
             font-family: 'Roboto', sans-serif;
             background-color: var(--bg-light);
             color: var(--text-dark);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overscroll-behavior: none; /* Prevent pull-to-refresh in webviews */
+            touch-action: manipulation; /* Improve touch responsiveness */
         }
 
         h1, h2, h3, h4 { font-family: 'Merriweather', serif; color: var(--primary); margin-top: 0; }
@@ -40,46 +42,49 @@
         .top-bar {
             background-color: var(--primary);
             color: var(--white);
-            padding: 10px 0;
-            font-size: 0.9rem;
+            padding: 8px 0;
+            font-size: 0.8rem;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
         }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
-        .top-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 15px; }
+        .top-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 5px; }
         
         .main-header {
             background: var(--white);
             border-bottom: 1px solid var(--border);
-            padding: 20px 0;
+            padding: 15px 0;
             box-shadow: var(--shadow);
-            position: sticky; top: 0; z-index: 1000;
+            position: sticky;
+            top: calc(0px + env(safe-area-inset-top)); /* Adjust for notches */
+            z-index: 1000;
         }
-        .header-flex { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .header-flex { display: flex; align-items: center; justify-content: space-between; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo-box {
-            width: 50px; height: 50px; background: var(--primary); color: var(--white);
-            font-family: 'Merriweather'; font-weight: bold; font-size: 24px;
+            width: 40px; height: 40px; background: var(--primary); color: var(--white);
+            font-family: 'Merriweather'; font-weight: bold; font-size: 20px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 4px; border: 2px solid var(--accent);
         }
-        .brand-text h1 { font-size: 1.5rem; margin: 0; color: var(--primary); }
-        .brand-text p { margin: 0; font-size: 0.85rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
+        .brand-text h1 { font-size: 1.2rem; margin: 0; color: var(--primary); }
+        .brand-text p { margin: 0; font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
 
         /* NAV */
-        .nav-menu { display: flex; gap: 30px; flex-wrap: wrap; }
+        .nav-menu { display: none; flex-direction: column; gap: 15px; width: 100%; background: var(--white); padding: 10px; box-shadow: var(--shadow); position: absolute; top: 100%; left: 0; z-index: 999; }
+        .nav-menu.open { display: flex; }
         .nav-item {
             text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 1rem;
-            padding: 8px 0; position: relative; transition: color 0.3s; cursor: pointer;
-            white-space: nowrap;
+            padding: 8px 0; transition: color 0.3s; cursor: pointer;
         }
         .nav-item:hover, .nav-item.active { color: var(--secondary); }
-        .nav-item.active::after {
-            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--accent);
-        }
+        .burger-menu { display: block; cursor: pointer; font-size: 1.5rem; color: var(--primary); }
 
         /* DASHBOARD LAYOUT */
         .dashboard-grid {
-            display: grid; grid-template-columns: 350px 1fr; gap: 20px;
-            margin-top: 30px; height: calc(100vh - 140px); min-height: 700px;
+            display: flex; flex-direction: column; gap: 15px;
+            margin-top: 15px; min-height: calc(100vh - 150px);
         }
 
         /* SIDEBAR (FILTERS & LIST) */
@@ -88,21 +93,21 @@
             display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);
         }
         .panel-header {
-            padding: 20px; background: var(--primary); color: var(--white);
+            padding: 15px; background: var(--primary); color: var(--white);
         }
-        .panel-header h3 { margin: 0; font-size: 1.1rem; font-weight: 400; color: var(--accent); }
-        .stats-row { display: flex; gap: 15px; margin-top: 10px; font-size: 0.9rem; opacity: 0.9; }
+        .panel-header h3 { margin: 0; font-size: 1rem; font-weight: 400; color: var(--accent); }
+        .stats-row { display: flex; gap: 10px; margin-top: 5px; font-size: 0.8rem; opacity: 0.9; }
 
-        .search-box { padding: 15px; border-bottom: 1px solid var(--border); background: #f9f9f9; }
+        .search-box { padding: 10px; border-bottom: 1px solid var(--border); background: #f9f9f9; }
         .input-group { position: relative; }
-        .input-group i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
+        .input-group i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #999; }
         .form-control {
-            width: 100%; padding: 12px 12px 12px 40px; border: 1px solid #ccc; border-radius: 4px;
-            font-family: inherit; font-size: 0.95rem; transition: border 0.3s;
+            width: 100%; padding: 10px 10px 10px 35px; border: 1px solid #ccc; border-radius: 4px;
+            font-size: 0.9rem; transition: border 0.3s;
         }
         .form-control:focus { border-color: var(--secondary); outline: none; }
 
-        .filter-tags { padding: 10px 15px; display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--border); }
+        .filter-tags { padding: 10px; display: flex; overflow-x: auto; gap: 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
         .filter-tag {
             font-size: 0.8rem; padding: 4px 10px; background: #eef2f6; border-radius: 20px;
             cursor: pointer; border: 1px solid transparent; transition: all 0.2s;
@@ -110,78 +115,81 @@
         .filter-tag:hover { background: #dfe6ed; }
         .filter-tag.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
 
-        .university-list { overflow-y: auto; flex: 1; }
+        .university-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; max-height: 40vh; }
         .uni-item {
-            padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;
+            padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;
             border-left: 4px solid transparent;
         }
         .uni-item:hover { background: #f0f7ff; }
         .uni-item.active { background: #e6f0fa; border-left-color: var(--accent); }
-        .uni-name { font-weight: 700; color: var(--primary); display: block; margin-bottom: 4px; }
-        .uni-meta { font-size: 0.85rem; color: var(--text-light); display: flex; justify-content: space-between; }
+        .uni-name { font-weight: 700; color: var(--primary); display: block; margin-bottom: 4px; font-size: 1rem; }
+        .uni-meta { font-size: 0.8rem; color: var(--text-light); display: flex; justify-content: space-between; }
         .rank-badge { background: var(--accent); color: var(--white); padding: 2px 6px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; }
 
         /* MAP AREA */
         .map-panel {
             background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
-            overflow: hidden; box-shadow: var(--shadow); position: relative;
+            overflow: hidden; box-shadow: var(--shadow); position: relative; height: 50vh; min-height: 300px;
         }
         #map { width: 100%; height: 100%; z-index: 1; }
 
-        /* CUSTOM GOLDEN MARKER STYLE (RESTORED) */
+        /* CUSTOM GOLDEN MARKER STYLE */
         .golden-marker-icon {
             background-color: transparent !important;
             border: none !important;
             color: var(--accent); /* University Gold */
-            font-size: 30px; 
+            font-size: 24px; 
             text-shadow: 0 0 3px rgba(0,0,0,0.5); 
         }
 
-        /* SECTIONS (FAQ & PLAN & DD) - Initially Hidden */
+        /* SECTIONS */
         .content-section { display: none; padding-bottom: 50px; animation: fadeIn 0.4s; }
         .content-section.active { display: block; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* DOUBLE DEGREE STYLES (NEW) */
+        /* DOUBLE DEGREE STYLES */
         .double-degree-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: 1fr; 
+            gap: 15px;
+            margin-top: 15px;
         }
         .info-card { 
             border: 1px solid var(--border); 
             background: #fcfcfc; 
-            padding: 20px; 
+            padding: 15px; 
             border-radius: var(--radius);
+            transition: box-shadow 0.3s;
         }
-        .dd-info-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.5px; margin-bottom: 5px; }
-        .dd-info-value { font-size: 1.1rem; font-weight: 600; color: var(--primary); }
+        .info-card:hover { box-shadow: var(--shadow); }
+        .dd-info-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.5px; margin-bottom: 5px; }
+        .dd-info-value { font-size: 1rem; font-weight: 600; color: var(--primary); }
         .program-list-styled-dd { list-style: none; padding: 0; }
         .program-list-styled-dd li {
             padding: 5px 0; border-bottom: 1px solid #eee; display: flex; align-items: flex-start;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         .program-list-styled-dd li:last-child { border-bottom: none; }
         .program-list-styled-dd li::before {
             content: '\f19d'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-            margin-right: 12px; color: var(--accent); font-size: 0.9rem; margin-top: 3px;
+            margin-right: 10px; color: var(--accent); font-size: 0.85rem; margin-top: 3px;
         }
 
-
         /* FAQ STYLES */
-        .faq-container { max-width: 900px; margin: 40px auto; }
-        .faq-category { margin-bottom: 30px; }
-        .cat-title { border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px; display: inline-block; }
+        .faq-container { max-width: 100%; margin: 20px auto; padding: 0 15px; }
+        .faq-category { margin-bottom: 20px; }
+        .cat-title { border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-bottom: 15px; display: inline-block; font-size: 1.2rem; }
         
         .faq-card {
             background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
-            margin-bottom: 15px; overflow: hidden;
+            margin-bottom: 10px; overflow: hidden;
+            transition: box-shadow 0.3s;
         }
+        .faq-card:hover { box-shadow: var(--shadow); }
         .faq-header {
-            padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-            font-weight: 600; background: #fff; transition: background 0.2s;
+            padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            font-weight: 600; background: #fff; transition: background 0.2s; font-size: 0.95rem;
         }
         .faq-header:hover { background: #f9f9f9; }
         .faq-icon { color: var(--secondary); transition: transform 0.3s; }
@@ -189,247 +197,115 @@
         .faq-card.open .faq-header { color: var(--secondary); border-bottom: 1px solid #f0f0f0; }
         .faq-body {
             max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
-            padding: 0 20px; font-size: 0.95rem; color: #444; line-height: 1.7;
+            padding: 0 15px; font-size: 0.9rem; color: #444; line-height: 1.6;
         }
-        /* Adjusted max-height for FAQ body to support content flow on opening */
-        .faq-card.open .faq-body { padding: 20px; max-height: 1000px; } 
+        .faq-card.open .faq-body { padding: 15px; max-height: 500px; } 
 
         /* PLAN STYLES */
-        .timeline { position: relative; max-width: 800px; margin: 50px auto; padding: 20px 0; }
+        .timeline { position: relative; max-width: 100%; margin: 30px auto; padding: 15px 0; }
         .timeline::before {
-            content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--border); transform: translateX(-50%);
+            content: ''; position: absolute; top: 0; bottom: 0; left: 20px; width: 2px; background: var(--border);
         }
-        .timeline-item { margin-bottom: 50px; position: relative; width: 50%; padding: 0 40px; }
-        .timeline-item:nth-child(odd) { left: 0; text-align: right; }
-        .timeline-item:nth-child(even) { left: 50%; text-align: left; }
-        
+        .timeline-item { margin-bottom: 40px; position: relative; width: 100%; padding: 0 15px 0 40px; text-align: left; }
         .timeline-dot {
-            position: absolute; top: 0; width: 20px; height: 20px; background: var(--white);
+            position: absolute; top: 0; left: 10px; width: 20px; height: 20px; background: var(--white);
             border: 4px solid var(--secondary); border-radius: 50%; z-index: 2;
         }
-        .timeline-item:nth-child(odd) .timeline-dot { right: -10px; }
-        .timeline-item:nth-child(even) .timeline-dot { left: -10px; }
-        
         .timeline-content {
-            background: var(--white); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border);
+            background: var(--white); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border);
             box-shadow: var(--shadow); position: relative;
         }
         .step-num {
-            position: absolute; top: -15px; background: var(--accent); color: var(--white);
-            padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8rem;
+            position: absolute; top: -12px; left: 40px; background: var(--accent); color: var(--white);
+            padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.75rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .timeline-item:nth-child(odd) .step-num { right: 20px; }
-        .timeline-item:nth-child(even) .step-num { left: 20px; }
 
-        /* MODAL - PASSPORT STYLE */
+        /* MODAL */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             background: rgba(0, 40, 85, 0.7); z-index: 2000;
-            display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s;
+            display: none; justify-content: center; align-items: flex-start; opacity: 0; transition: opacity 0.3s;
+            overflow: hidden;
         }
         .modal-overlay.open { display: flex; opacity: 1; }
         
         .modal-window {
-            background: var(--white); width: 900px; max-width: 95%; height: 85vh;
-            border-radius: 8px; display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            background: var(--white); width: 100%; max-width: 100%; height: 100vh;
+            border-radius: 0; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: none;
         }
         
         .modal-header {
-            background: var(--primary); color: var(--white); padding: 25px 30px;
+            background: var(--primary); color: var(--white); padding: 15px 20px;
             display: flex; justify-content: space-between; align-items: flex-start;
         }
-        .m-title h2 { color: var(--white); margin: 0; font-size: 1.8rem; }
-        .m-subtitle { color: var(--accent); margin-top: 5px; font-size: 1rem; display: flex; gap: 15px; flex-wrap: wrap; }
-        .close-btn { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1.5rem; cursor: pointer; transition: color 0.2s; }
+        .m-title h2 { color: var(--white); margin: 0; font-size: 1.4rem; }
+        .m-subtitle { color: var(--accent); margin-top: 5px; font-size: 0.9rem; display: flex; gap: 10px; flex-wrap: wrap; }
+        .close-btn { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
         .close-btn:hover { color: var(--white); }
 
-        .modal-body { display: flex; flex: 1; overflow: hidden; }
+        .modal-body { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
         
         .modal-nav {
-            width: 200px; background: #f4f6f9; border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; padding-top: 20px; flex-shrink: 0;
+            background: #f4f6f9; border-bottom: 1px solid var(--border);
+            display: flex; flex-direction: row; overflow-x: auto; white-space: nowrap; padding: 5px 0;
         }
         .m-tab {
-            padding: 15px 20px; cursor: pointer; font-weight: 500; color: var(--text-light);
-            border-left: 4px solid transparent; transition: all 0.2s; text-align: left; background: none; border-bottom: none; border-top: none; border-right: none; width: 100%; font-family: inherit;
+            padding: 8px 12px; cursor: pointer; font-weight: 500; color: var(--text-light);
+            border-bottom: 4px solid transparent; transition: all 0.2s; font-size: 0.85rem;
         }
-        .m-tab:hover { background: #e6eef5; color: var(--primary); }
-        .m-tab.active { background: var(--white); color: var(--primary); border-left-color: var(--accent); font-weight: 700; box-shadow: -5px 0 10px rgba(0,0,0,0.05); }
+        .m-tab:hover { color: var(--primary); }
+        .m-tab.active { color: var(--primary); border-bottom-color: var(--accent); font-weight: 700; }
 
-        .modal-content { flex: 1; padding: 30px; overflow-y: auto; background: var(--white); }
+        .modal-content { flex: 1; padding: 15px; overflow-y: auto; background: var(--white); -webkit-overflow-scrolling: touch; }
         
         .tab-panel { display: none; animation: fadeIn 0.3s; }
         .tab-panel.active { display: block; }
         
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
-        .info-card { background: #f9f9f9; padding: 20px; border-radius: var(--radius); border: 1px solid #eee; }
-        .info-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.5px; margin-bottom: 5px; }
-        .info-value { font-size: 1.1rem; font-weight: 600; color: var(--primary); }
+        .info-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
+        .info-card { background: #f9f9f9; padding: 15px; border-radius: var(--radius); border: 1px solid #eee; transition: box-shadow 0.3s; }
+        .info-card:hover { box-shadow: var(--shadow); }
+        .info-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.5px; margin-bottom: 5px; }
+        .info-value { font-size: 1rem; font-weight: 600; color: var(--primary); }
 
         .program-list-styled { list-style: none; padding: 0; }
         .program-list-styled li {
-            padding: 12px 0; border-bottom: 1px solid #eee; display: flex; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid #eee; display: flex; align-items: center; font-size: 0.85rem;
         }
         .program-list-styled li::before {
             content: '\f19d'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-            margin-right: 12px; color: var(--accent);
+            margin-right: 10px; color: var(--accent);
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 1200px) {
-            .container { padding: 0 15px; }
-            .dashboard-grid { 
-                grid-template-columns: 300px 1fr; 
-                height: calc(100vh - 120px); 
-                min-height: 600px;
-            }
+        /* RESPONSIVE ADJUSTMENTS FOR DESKTOP */
+        @media (min-width: 901px) {
+            .burger-menu { display: none; }
+            .nav-menu { display: flex; flex-direction: row; gap: 30px; position: static; padding: 0; box-shadow: none; width: auto; }
+            .dashboard-grid { flex-direction: row; height: calc(100vh - 140px); min-height: 700px; }
+            .map-panel { height: 100%; flex: 1; }
+            .sidebar-panel { width: 350px; flex-shrink: 0; }
+            .university-list { max-height: none; }
+            .modal-window { width: 900px; max-width: 95%; height: 85vh; border-radius: 8px; }
+            .modal-body { flex-direction: row; }
+            .modal-nav { width: 200px; flex-direction: column; border-bottom: none; border-right: 1px solid var(--border); overflow-x: hidden; }
+            .m-tab { border-bottom: none; border-left: 4px solid transparent; padding: 15px 20px; font-size: 1rem; }
+            .m-tab.active { border-left-color: var(--accent); border-bottom: none; }
+            .info-grid { grid-template-columns: 1fr 1fr; }
+            .double-degree-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+            .timeline::before { left: 50%; }
+            .timeline-item { width: 50%; padding: 0 40px; }
+            .timeline-item:nth-child(odd) { left: 0; text-align: right; }
+            .timeline-item:nth-child(even) { left: 50%; text-align: left; }
+            .timeline-item:nth-child(odd) .timeline-dot { right: -10px; left: auto; }
+            .timeline-item:nth-child(even) .timeline-dot { left: -10px; }
+            .timeline-item:nth-child(odd) .step-num { right: 20px; left: auto; }
+            .timeline-item:nth-child(even) .step-num { left: 20px; }
         }
-        
-        /* УЛУЧШЕННЫЙ МОБИЛЬНЫЙ МЕДИА-ЗАПРОС */
-        @media (max-width: 900px) {
-            
-            /* --- ГЛАВНАЯ СТРУКТУРА --- */
-            .top-flex { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 5px; 
-            }
-            .top-bar {
-                /* Уменьшаем размер текста для экономии места */
-                font-size: 0.8rem;
-                padding: 8px 0;
-            }
-            .header-flex { 
-                flex-direction: column; 
-                align-items: flex-start; 
-                gap: 15px; 
-            }
-            .main-header {
-                 padding: 15px 0;
-            }
-            /* Навигация (Меню) - Скролл для узких экранов */
-            .nav-menu { 
-                flex-wrap: nowrap; 
-                margin-top: 10px; 
-                gap: 15px;
-                width: 100%;
-                overflow-x: auto;
-                padding-bottom: 5px; /* Для видимости тени скролла */
-            }
-            .nav-item { 
-                padding: 5px 0; 
-                font-size: 0.95rem;
-                flex-shrink: 0; /* Чтобы элементы не сжимались */
-            }
-            .nav-item.active::after {
-                height: 2px;
-            }
 
-            /* --- ДАШБОРД КАРТЫ --- */
-            .dashboard-grid { 
-                grid-template-columns: 1fr; 
-                height: auto; 
-                min-height: auto; 
-                margin-top: 20px; 
-                /* Переставляем карту вверх (для лучшего UX) */
-                grid-template-areas: 
-                    "map"
-                    "sidebar";
-            }
-            .map-panel { 
-                grid-area: map; 
-                height: 350px; /* Немного ниже, чем 400px для экономии места */
-                margin-bottom: 10px;
-            }
-            .sidebar-panel { 
-                grid-area: sidebar; 
-                height: auto; 
-                max-height: 450px; /* Ограничиваем высоту, чтобы не занимать весь экран */
-            }
-            .university-list { 
-                max-height: 200px; /* Уменьшаем максимальную высоту списка */
-                min-height: 100px; /* Обеспечиваем минимальную видимость */
-            } 
-            .search-box {
-                padding: 10px 15px;
-            }
-            .form-control {
-                padding: 10px 10px 10px 40px; /* Немного меньше отступы */
-            }
-            .filter-tags {
-                /* Обеспечиваем прокрутку, если тегов много */
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                padding: 10px 15px;
-            }
-            .filter-tag {
-                flex-shrink: 0;
-            }
-
-            /* --- ДВОЙНОЙ ДИПЛОМ --- */
-            .double-degree-grid {
-                grid-template-columns: 1fr; /* Один столбец на мобильных */
-            }
-            
-            /* --- ТАЙМЛАЙН --- */
-            .timeline::before { left: 20px; }
-            .timeline-item { width: 100%; padding: 0 20px 0 40px; margin-bottom: 30px; }
-            /* Смещаем все элементы на левую сторону */
-            .timeline-item:nth-child(odd), .timeline-item:nth-child(even) { 
-                left: 0; 
-                text-align: left !important; 
-            }
-            .timeline-item:nth-child(odd) .timeline-dot { left: 10px; right: auto; }
-            .timeline-item:nth-child(even) .timeline-dot { left: 10px; }
-            .timeline-item:nth-child(odd) .step-num { left: 40px; right: auto; }
-            .timeline-item:nth-child(even) .step-num { left: 40px; }
-            
-            /* --- МОДАЛЬНОЕ ОКНО --- */
-            .info-grid { grid-template-columns: 1fr; gap: 20px; }
-            
-            .modal-window { 
-                height: 95vh; 
-                max-height: 95vh; 
-            }
-            .modal-header {
-                 padding: 20px;
-            }
-            .m-title h2 { 
-                font-size: 1.4rem; 
-            }
-            .m-subtitle {
-                font-size: 0.9rem;
-            }
-            .modal-body { 
-                flex-direction: column; 
-            }
-            /* Навигация модального окна - горизонтальный скролл */
-            .modal-nav { 
-                width: 100%; 
-                border-right: none; 
-                border-bottom: 1px solid var(--border); 
-                padding-top: 0; 
-                flex-direction: row; 
-                overflow-x: auto; 
-                white-space: nowrap;
-            }
-            .m-tab { 
-                border-left: none; 
-                border-bottom: 4px solid transparent; 
-                flex-shrink: 0; 
-                padding: 12px 15px; /* Немного уменьшены отступы */
-            }
-            .m-tab.active { 
-                border-left-color: transparent; 
-                border-bottom-color: var(--accent); 
-                box-shadow: none;
-            }
-            .modal-content { 
-                padding: 20px; /* Уменьшены отступы */
-            }
-        }
+        /* Additional fixes */
+        html, body { height: 100%; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+        .container { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
 <body>
@@ -450,7 +326,8 @@
                     <p>International Cooperation Department</p>
                 </div>
             </div>
-            <nav class="nav-menu">
+            <span class="burger-menu" onclick="toggleNav()"><i class="fas fa-bars"></i></span>
+            <nav class="nav-menu" id="navMenu">
                 <a class="nav-item active" onclick="switchTab('map-section', this)">Карта Партнеров</a>
                 <a class="nav-item" onclick="switchTab('double-degree-section', this)">Программа Двойного Диплома</a>
                 <a class="nav-item" onclick="switchTab('plan-section', this)">Дорожная Карта</a>
@@ -463,6 +340,9 @@
         
         <section id="map-section" class="content-section active">
             <div class="dashboard-grid">
+                <main class="map-panel">
+                    <div id="map"></div>
+                </main>
                 <aside class="sidebar-panel">
                     <div class="panel-header">
                         <h3><i class="fas fa-globe-europe"></i> Навигатор ВУЗов</h3>
@@ -490,39 +370,33 @@
                     <div class="university-list" id="uni-list-container">
                         </div>
                 </aside>
-
-                <main class="map-panel">
-                    <div id="map"></div>
-                </main>
             </div>
         </section>
         
         <section id="double-degree-section" class="content-section">
-            <div class="container" style="padding: 0;">
-                <div style="text-align: center; margin: 40px 0;">
-                    <h2 style="color: var(--secondary);">Программа Двойного Диплома AlmaU</h2>
-                    <p style="color:var(--text-light)">Получите два диплома, обучаясь в AlmaU и ведущих университетах мира.</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <h2 style="color: var(--secondary); font-size: 1.4rem;">Программа Двойного Диплома AlmaU</h2>
+                <p style="color:var(--text-light); font-size: 0.9rem;">Получите два диплома, обучаясь в AlmaU и ведущих университетах мира.</p>
+            </div>
+            
+            <div id="double-degree-content">
                 </div>
-                
-                <div id="double-degree-content">
-                    </div>
-                
-                <div style="margin-top: 40px; padding: 20px; background: #e6f0fa; border-radius: var(--radius); border-left: 5px solid var(--accent);">
-                    <h4 style="margin-top: 0; color: var(--primary);"><i class="fas fa-info-circle"></i> Особенности Программы Двойного Диплома:</h4>
-                    <ul style="list-style-type: disc; padding-left: 20px; font-size: 0.95rem; color: #444;">
-                        <li>Программа обычно предполагает обучение **1-2 года** в вузе-партнере.</li>
-                        <li>По окончании обучения студент получает **два полноценных диплома** (AlmaU и зарубежного вуза).</li>
-                        <li>Обучение в вузе-партнере по программе Двойного Диплома является **платным**, согласно тарифам вуза-партнера.</li>
-                        <li>Для участия необходимо соответствовать высоким требованиям обоих вузов по успеваемости и знанию языка, часто предусмотрен конкурсный отбор.</li>
-                    </ul>
-                </div>
+            
+            <div style="margin-top: 30px; padding: 15px; background: #e6f0fa; border-radius: var(--radius); border-left: 5px solid var(--accent);">
+                <h4 style="margin-top: 0; color: var(--primary); font-size: 1.1rem;"><i class="fas fa-info-circle"></i> Особенности Программы Двойного Диплома:</h4>
+                <ul style="list-style-type: disc; padding-left: 20px; font-size: 0.9rem; color: #444;">
+                    <li>Программа обычно предполагает обучение **1-2 года** в вузе-партнере.</li>
+                    <li>По окончании обучения студент получает **два полноценных диплома** (AlmaU и зарубежного вуза).</li>
+                    <li>Обучение в вузе-партнере по программе Двойного Диплома является **платным**, согласно тарифам вуза-партнера.</li>
+                    <li>Для участия необходимо соответствовать высоким требованиям обоих вузов по успеваемости и знанию языка, часто предусмотрен конкурсный отбор.</li>
+                </ul>
             </div>
         </section>
 
         <section id="plan-section" class="content-section">
-            <div style="text-align: center; margin: 40px 0;">
-                <h2>Процесс подачи заявки</h2>
-                <p style="color:var(--text-light)">Официальный регламент прохождения конкурса на академическую мобильность</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <h2 style="font-size: 1.4rem;">Процесс подачи заявки</h2>
+                <p style="color:var(--text-light); font-size: 0.9rem;">Официальный регламент прохождения конкурса на академическую мобильность</p>
             </div>
             
             <div class="timeline">
@@ -561,7 +435,7 @@
                 <div class="modal-content">
                     
                     <div id="tab-overview" class="tab-panel active">
-                        <h3 style="color: var(--secondary);">Общая информация</h3>
+                        <h3 style="color: var(--secondary); font-size: 1.2rem;">Общая информация</h3>
                         <div class="info-grid">
                             <div class="info-card">
                                 <div class="info-label">Доступные места (Квота)</div>
@@ -580,37 +454,37 @@
                                 <div class="info-value" style="color:var(--success)">Активный</div>
                             </div>
                         </div>
-                        <div class="info-card" style="background:#fff; border-color:var(--accent); margin-top:20px;">
-                            <h4><i class="fas fa-info-circle"></i> Описание</h4>
-                            <p style="color:var(--text-light); font-size:0.95rem;">
+                        <div class="info-card" style="background:#fff; border-color:var(--accent); margin-top:15px;">
+                            <h4 style="font-size: 1.1rem;"><i class="fas fa-info-circle"></i> Описание</h4>
+                            <p style="color:var(--text-light); font-size:0.9rem;">
                                 Вуз является стратегическим партнером AlmaU. Студентам предоставляется возможность бесплатного обучения (**Tuition Waiver**). Обязательно проверьте соответствие курсов (Learning Agreement) перед подачей.
                             </p>
                         </div>
                     </div>
 
                     <div id="tab-bachelor" class="tab-panel">
-                        <h4>Доступные дисциплины (Бакалавриат)</h4>
+                        <h4 style="font-size: 1.1rem;">Доступные дисциплины (Бакалавриат)</h4>
                         <ul class="program-list-styled" id="list-bachelor"></ul>
                     </div>
 
                     <div id="tab-master" class="tab-panel">
-                        <h4>Доступные дисциплины (Магистратура)</h4>
+                        <h4 style="font-size: 1.1rem;">Доступные дисциплины (Магистратура)</h4>
                         <ul class="program-list-styled" id="list-master"></ul>
                     </div>
 
                     <div id="tab-finance" class="tab-panel">
-                        <div class="info-card" style="margin-bottom:20px;">
-                            <h4><i class="fas fa-wallet"></i> Примерные расходы (в месяц)</h4>
+                        <div class="info-card" style="margin-bottom:15px;">
+                            <h4 style="font-size: 1.1rem;"><i class="fas fa-wallet"></i> Примерные расходы (в месяц)</h4>
                             <p style="font-size:0.85rem; color:#666;">*Данные являются приблизительными и зависят от образа жизни.</p>
-                            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                            <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size: 0.9rem;">
                                 <tr style="border-bottom:1px solid #eee;"><td style="padding:8px;">Жилье</td><td style="text-align:right; font-weight:bold;" id="cost-living">€300-500</td></tr>
                                 <tr style="border-bottom:1px solid #eee;"><td style="padding:8px;">Питание</td><td style="text-align:right; font-weight:bold;" id="cost-food">€200-300</td></tr>
                                 <tr style="border-bottom:1px solid #eee;"><td style="padding:8px;">Транспорт</td><td style="text-align:right; font-weight:bold;" id="cost-transport">€30-50</td></tr>
                             </table>
                         </div>
                         <div class="info-card">
-                            <h4><i class="fas fa-passport"></i> Визовые требования</h4>
-                            <p>Для обучения требуется студенческая виза типа D. Подтверждение финансовой состоятельности обязательно. Страховой полис должен покрывать весь период пребывания.</p>
+                            <h4 style="font-size: 1.1rem;"><i class="fas fa-passport"></i> Визовые требования</h4>
+                            <p style="font-size: 0.9rem;">Для обучения требуется студенческая виза типа D. Подтверждение финансовой состоятельности обязательно. Страховой полис должен покрывать весь период пребывания.</p>
                         </div>
                     </div>
 
@@ -622,7 +496,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
     /* ---------------- DATA ---------------- */
-    /* Полная база данных, без сокращений, плюс добавлен регион для фильтрации */
     const universities = [
         { region: "Europe", country: "Австрия", name: "Management Center Innsbruck", city: "Innsbruck", students: "2", lat:47.2682, lon:11.3923, bachelorPrograms: ["Management", "Business"], masterPrograms: ["International Business"] },
         { region: "CIS", country: "Азербайджан", name: "ADA University", city: "Baku", students: "5", lat:40.4093, lon:49.8671, bachelorPrograms: ["Business Administration","Economics","Finance","Computer Science","International Studies","Laws"], masterPrograms: ["Global Management","MBA Finance","Public Administration"] },
@@ -715,9 +588,7 @@
         }
     ];
     
-    // ДАННЫЕ ДЛЯ ПРОГРАММЫ ДВОЙНОГО ДИПЛОМА (ДОБАВЛЕНО)
     const doubleDegreePrograms = [
-        // Бакалавриат (Bachelor)
         { level: "Бакалавриат", partner: "Thunderbird School of Global Management, Arizona State University", country: "США", programs: ["Bachelor of Science in International Trade", "Bachelor of Global Management"] },
         { level: "Бакалавриат", partner: "ESC Rennes School of Business", country: "Франция", programs: ["International Bachelor in Management"] },
         { level: "Бакалавриат", partner: "EU Business School", country: "Швейцария", programs: ["Bachelor of Arts in Leisure and Tourism Management", "Bachelor of Business Administration"] },
@@ -730,7 +601,6 @@
         { level: "Бакалавриат", partner: "Cesar Ritz Colleges Switzerland", country: "Швейцария", programs: ["Bachelor in Hospitality"] },
         { level: "Бакалавриат", partner: "Hotel Institute Montreux", country: "Швейцария", programs: ["Bachelor in Hospitality"] },
         
-        // Магистратура (Master)
         { level: "Магистратура", partner: "IE University Business School", country: "Испания", programs: ["Уточняйте программы в Международном Офисе AlmaU"] },
         { level: "Магистратура", partner: "EU Business School", country: "Испания", programs: ["Уточняйте программы в Международном Офисе AlmaU"] },
         { level: "Магистратура", partner: "EDEM Business School", country: "Испания", programs: ["Уточняйте программы в Международном Офисе AlmaU"] },
@@ -743,12 +613,11 @@
     let markers = L.layerGroup();
     let currentFilter = 'all';
 
-    // 1. Определение Золотого Маркера (Восстановлено)
     const GoldenIcon = L.DivIcon.extend({
         options: {
-            iconSize: [30, 30],
-            iconAnchor: [15, 30], 
-            popupAnchor: [0, -25], 
+            iconSize: [24, 24],
+            iconAnchor: [12, 24], 
+            popupAnchor: [0, -20], 
             className: 'golden-marker-icon',
             html: '<i class="fa fa-map-marker-alt"></i>'
         }
@@ -756,9 +625,8 @@
     const goldenIcon = new GoldenIcon();
 
     function initMap() {
-        // Проверяем, что элемент карты существует
         if (document.getElementById('map')) {
-            map = L.map('map').setView([45, 20], 3); 
+            map = L.map('map', { zoomControl: true, attributionControl: false }).setView([45, 20], 3); 
             
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
                 attribution: '© AlmaU Mobility',
@@ -767,6 +635,12 @@
             }).addTo(map);
 
             map.addLayer(markers);
+            map.attributionControl.setPrefix('');
+
+            // Invalidate on load, resize, orientation
+            setTimeout(() => map.invalidateSize(), 100);
+            window.addEventListener('resize', () => setTimeout(() => map.invalidateSize(), 100));
+            window.addEventListener('orientationchange', () => setTimeout(() => map.invalidateSize(), 200));
         }
     }
 
@@ -775,14 +649,11 @@
         renderList(universities);
         renderTimeline();
         renderFAQ();
-        renderDoubleDegreePrograms(); // Запуск рендеринга DD
-        // Принудительная активация начального фильтра
+        renderDoubleDegreePrograms();
         filterList('all', document.querySelector('.filter-tags .filter-tag')); 
     }
 
-    /* ---------------- RENDERING LOGIC ---------------- */
     function renderList(data) {
-        // Clear list & map
         const uniListContainer = document.getElementById('uni-list-container');
         uniListContainer.innerHTML = '';
         markers.clearLayers();
@@ -791,15 +662,13 @@
         countDisplay.textContent = `${data.length} ВУЗов`;
 
         data.forEach(u => {
-            // 1. Add Marker (используем золотой маркер)
             if (u.lat && u.lon) {
                 const marker = L.marker([u.lat, u.lon], { icon: goldenIcon })
-                    .bindTooltip(`<b>${u.name}</b>`, { direction: 'top', offset: [0, -25] })
+                    .bindTooltip(`<b>${u.name}</b>`, { direction: 'top', offset: [0, -20] })
                     .on('click', () => openModal(u));
                 markers.addLayer(marker);
             }
 
-            // 2. Add List Item
             const div = document.createElement('div');
             div.className = 'uni-item';
             div.innerHTML = `
@@ -810,24 +679,21 @@
                 </div>
             `;
             div.onclick = () => {
-                if (map) map.flyTo([u.lat, u.lon], 6, { duration: 1.5 });
+                if (map) map.flyTo([u.lat, u.lon], 6, { duration: 1 });
                 openModal(u);
             };
             uniListContainer.appendChild(div);
         });
 
-        // Fit map bounds if there are markers
         if (map && data.length > 0) {
             const bounds = data.map(uni => [uni.lat, uni.lon]);
-            if(bounds.length > 0) {
-                 map.fitBounds(bounds, { padding: [50, 50], maxZoom: 4 });
-            }
+            if (bounds.length > 0) map.fitBounds(bounds, { padding: [20, 20], maxZoom: 4 });
         } else if (map) {
-            map.setView([45, 20], 3); // Reset view
+            map.setView([45, 20], 3);
         }
+        if (map) map.invalidateSize();
     }
 
-    /* ---------------- FILTER LOGIC ---------------- */
     function filterList(region = currentFilter, btn = null) {
         if (btn) {
             document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
@@ -849,7 +715,6 @@
         renderList(filtered);
     }
 
-    // Search Listener
     document.getElementById('searchBox').addEventListener('input', () => {
         const activeBtn = document.querySelector('.filter-tag.active');
         if (activeBtn) {
@@ -859,7 +724,6 @@
         }
     });
 
-    /* ---------------- TIMELINE LOGIC ---------------- */
     function renderTimeline() {
         const container = document.getElementById('timeline-container');
         container.innerHTML = steps.map(step => `
@@ -874,7 +738,6 @@
         `).join('');
     }
 
-    /* ---------------- FAQ LOGIC ---------------- */
     function renderFAQ() {
         const root = document.getElementById('faq-root');
         root.innerHTML = faqData.map(cat => `
@@ -898,7 +761,6 @@
         const body = card.querySelector('.faq-body');
         const isOpen = card.classList.contains('open');
 
-        // Close others in the same category
         card.closest('.faq-category').querySelectorAll('.faq-card.open').forEach(openCard => {
             if (openCard !== card) {
                 openCard.classList.remove('open');
@@ -915,7 +777,6 @@
         }
     }
 
-    /* ---------------- DOUBLE DEGREE LOGIC (NEW) ---------------- */
     function renderDoubleDegreePrograms() {
         const container = document.getElementById('double-degree-content');
         container.innerHTML = ''; 
@@ -926,7 +787,7 @@
             const levelPrograms = doubleDegreePrograms.filter(p => p.level === level);
             
             let html = `
-                <h3 style="border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-top: 40px; margin-bottom: 20px; display: inline-block; color: var(--secondary);">${level}</h3>
+                <h3 style="border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-top: 30px; margin-bottom: 15px; display: inline-block; color: var(--secondary); font-size: 1.2rem;">${level}</h3>
                 <div class="double-degree-grid">
             `;
             
@@ -934,7 +795,7 @@
                 html += `
                     <div class="info-card">
                         <div class="dd-info-label">${p.country}</div>
-                        <div class="dd-info-value" style="font-size: 1.2rem;">${p.partner}</div>
+                        <div class="dd-info-value" style="font-size: 1.1rem;">${p.partner}</div>
                         <ul class="program-list-styled-dd" style="margin-top: 10px;">
                             ${p.programs.map(prog => `<li>${prog}</li>`).join('')}
                         </ul>
@@ -947,16 +808,13 @@
         });
     }
 
-
-    /* ---------------- MODAL LOGIC ---------------- */
     function openModal(u) {
         document.getElementById('m-name').textContent = u.name;
         document.getElementById('m-city').textContent = u.city;
         document.getElementById('m-country').textContent = u.country;
         document.getElementById('m-students').textContent = u.students;
-        document.getElementById('m-rank').textContent = "Top Partner"; // Placeholder functionality
+        document.getElementById('m-rank').textContent = "Top Partner";
 
-        // Populate Lists
         const fillList = (id, arr) => {
             const el = document.getElementById(id);
             el.innerHTML = '';
@@ -974,14 +832,13 @@
         fillList('list-bachelor', u.bachelorPrograms);
         fillList('list-master', u.masterPrograms);
 
-        // Estimate Cost Logic (Dummy logic for serious functionality feel)
         let rent = "€300-500";
         if(u.country === "Франция" || u.country === "Германия") rent = "€600-900";
         else if(u.country === "Польша" || u.country === "Литва") rent = "€250-400";
         document.getElementById('cost-living').textContent = rent;
 
         document.getElementById('uniModal').classList.add('open');
-        modalTab('tab-overview', document.querySelector('.modal-nav .m-tab:first-child')); // Сброс на вкладку Обзор
+        modalTab('tab-overview', document.querySelector('.modal-nav .m-tab:first-child'));
     }
 
     function closeModal() {
@@ -989,15 +846,12 @@
     }
 
     function modalTab(targetId, btn) {
-        // Buttons
         document.querySelectorAll('.modal-nav .m-tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Panels
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         document.getElementById(targetId).classList.add('active');
     }
 
-    /* ---------------- NAVIGATION ---------------- */
     function switchTab(sectionId, btn) {
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -1006,28 +860,35 @@
         document.getElementById(sectionId).classList.add('active');
         
         if(sectionId === 'map-section') {
-            // Force map to re-render to fix potential display bugs after div was hidden/shown
             setTimeout(() => {
                 if(map) map.invalidateSize();
             }, 200);
         }
-        
-        // Для мобильной навигации: скроллим меню, чтобы активный элемент был виден
-        if (window.innerWidth <= 900) {
-            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        toggleNav(false);
+    }
+
+    function toggleNav(forceClose = null) {
+        const nav = document.getElementById('navMenu');
+        if (forceClose === false) {
+            nav.classList.remove('open');
+        } else {
+            nav.classList.toggle('open');
         }
     }
 
-    // Start
     init();
 
-    // Close modal on outside click
-    window.onclick = function(event) {
-        const modal = document.getElementById('uniModal');
-        if (event.target == modal) {
+    document.getElementById('uniModal').addEventListener('click', function(event) {
+        if (event.target === this) {
             closeModal();
         }
-    }
+    });
+
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            if (map) map.invalidateSize();
+        }, 200);
+    });
     </script>
 </body>
 </html>
