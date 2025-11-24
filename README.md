@@ -1,21 +1,18 @@
 <html lang="ru">
 <head>
     <meta charset="utf-8" />
-    <!-- Viewport optimized for mobile apps: no scaling, cover full width -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
-    <!-- PWA / Mobile App Meta Tags -->
+    <!-- PWA / Mobile App Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#002855">
+    <meta name="theme-color" content="#ffffff">
+
+    <title>AlmaU Global Mobility Portal | Official Resource</title>
     
-    <title>AlmaU Global Mobility Portal</title>
-    
-    <!-- Leaflet CSS -->
+    <!-- Libraries -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -31,480 +28,421 @@
             --white: #ffffff;
             --border: #e0e0e0;
             --success: #2e7d32;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 8px;
-            --header-height: 120px; /* Approximate for calculations */
+            --radius: 12px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body {
+        body, html {
             margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden; /* CRITICAL FIX: Prevents side-scrolling overflow */
             font-family: 'Roboto', sans-serif;
             background-color: var(--bg-light);
             color: var(--text-dark);
             line-height: 1.6;
-            overflow-x: hidden; /* Prevent horizontal scroll on mobile */
         }
 
         h1, h2, h3, h4 { font-family: 'Merriweather', serif; color: var(--primary); margin-top: 0; }
-        
-        /* HEADER UTILITIES */
-        .top-bar {
-            background-color: var(--primary);
-            color: var(--white);
-            padding: 8px 0;
-            font-size: 0.85rem;
-        }
-        
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 16px; }
-        .top-flex { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        
-        /* STICKY MAIN HEADER */
+
+        /* HEADER */
         .main-header {
             background: var(--white);
             border-bottom: 1px solid var(--border);
             padding: 12px 0;
-            box-shadow: var(--shadow);
-            position: sticky; 
-            top: 0; 
-            z-index: 1000;
+            position: sticky; top: 0; z-index: 1000;
             width: 100%;
         }
-        .header-flex { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
         
         .logo-area { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
         .logo-box {
-            width: 42px; height: 42px; background: var(--primary); color: var(--white);
+            width: 40px; height: 40px; background: var(--primary); color: var(--white);
             font-family: 'Merriweather'; font-weight: bold; font-size: 20px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 6px; border: 2px solid var(--accent);
         }
-        .brand-text h1 { font-size: 1.2rem; margin: 0; color: var(--primary); line-height: 1.2; }
-        .brand-text p { margin: 0; font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+        .brand-text h1 { font-size: 1.1rem; margin: 0; line-height: 1.1; }
+        .brand-text p { margin: 0; font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* SCROLLABLE NAV FOR MOBILE */
-        .nav-menu { 
-            display: flex; gap: 10px; 
-            overflow-x: auto; 
-            padding-bottom: 5px; /* Space for scrollbar if visible */
-            -webkit-overflow-scrolling: touch; /* Smooth scroll iOS */
-            scrollbar-width: none; /* Firefox hide scrollbar */
-            margin-left: auto;
+        /* APP-STYLE SCROLLABLE NAVIGATION */
+        .nav-scroller {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch; /* Smooth iOS scroll */
+            padding: 8px 16px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            /* Hide scrollbar */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+            position: sticky;
+            top: 65px; /* Stick below header */
+            z-index: 999;
         }
-        .nav-menu::-webkit-scrollbar { display: none; /* Chrome hide scrollbar */ }
+        .nav-scroller::-webkit-scrollbar { display: none; }
 
+        .nav-menu { display: inline-flex; gap: 10px; }
         .nav-item {
-            text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.95rem;
-            padding: 8px 12px; position: relative; transition: color 0.3s; cursor: pointer;
-            white-space: nowrap; border-radius: 20px;
-            background: transparent;
+            text-decoration: none; color: var(--text-dark); font-weight: 500; font-size: 0.9rem;
+            padding: 8px 16px; border-radius: 20px; background: #f0f4f8; transition: all 0.2s;
+            cursor: pointer;
         }
-        .nav-item:hover { color: var(--secondary); background: #f0f4f8; }
-        .nav-item.active { color: var(--white); background: var(--primary); }
-        
-        /* CONTENT SECTIONS */
-        .content-section { display: none; padding-bottom: 80px; animation: fadeIn 0.4s; }
-        .content-section.active { display: block; }
+        .nav-item.active { background: var(--primary); color: var(--white); box-shadow: 0 2px 4px rgba(0,40,85,0.2); }
 
+        /* CONTENT LAYOUT */
+        .content-section { display: none; padding-bottom: 80px; animation: fadeIn 0.3s; width: 100%; }
+        .content-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* DASHBOARD GRID */
+        /* MAP & LIST DASHBOARD */
         .dashboard-grid {
-            display: grid; grid-template-columns: 350px 1fr; gap: 20px;
-            margin-top: 20px; height: calc(100vh - 120px); min-height: 600px;
+            display: flex; flex-direction: column; gap: 15px; margin-top: 15px;
         }
 
-        /* SIDEBAR */
-        .sidebar-panel {
-            background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
-            display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow);
-        }
-        .panel-header { padding: 15px; background: var(--primary); color: var(--white); }
-        .panel-header h3 { margin: 0; font-size: 1rem; color: var(--accent); }
-        .stats-row { display: flex; gap: 15px; margin-top: 5px; font-size: 0.8rem; opacity: 0.9; }
-
-        .search-box { padding: 10px 15px; border-bottom: 1px solid var(--border); background: #f9f9f9; }
-        .input-group { position: relative; }
-        .input-group i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #999; }
-        .form-control {
-            width: 100%; padding: 10px 10px 10px 35px; border: 1px solid #ccc; border-radius: 20px;
-            font-family: inherit; font-size: 0.9rem; transition: border 0.3s;
-        }
-        .form-control:focus { border-color: var(--secondary); outline: none; }
-
-        .filter-tags { padding: 10px 15px; display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--border); }
-        .filter-tag {
-            font-size: 0.75rem; padding: 4px 12px; background: #eef2f6; border-radius: 12px;
-            cursor: pointer; border: 1px solid transparent; transition: all 0.2s;
-        }
-        .filter-tag.active { background: var(--primary); color: var(--white); }
-
-        .university-list { overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
-        .uni-item {
-            padding: 12px 15px; border-bottom: 1px solid var(--border); cursor: pointer; 
-            border-left: 4px solid transparent; position: relative;
-        }
-        .uni-item:active { background: #f0f7ff; } /* Mobile tap effect */
-        .uni-item.active { background: #e6f0fa; border-left-color: var(--accent); }
-        .uni-name { font-weight: 700; color: var(--primary); display: block; font-size: 0.95rem; }
-        .uni-meta { font-size: 0.8rem; color: var(--text-light); display: flex; justify-content: space-between; margin-top: 4px; }
-        .rank-badge { background: var(--accent); color: var(--white); padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; font-weight: bold; }
-
-        /* MAP */
         .map-panel {
-            background: var(--white); border-radius: var(--radius); border: 1px solid var(--border);
-            overflow: hidden; box-shadow: var(--shadow); position: relative; z-index: 1;
+            height: 350px; width: 100%; 
+            border-radius: var(--radius); overflow: hidden; 
+            border: 1px solid var(--border); position: relative; z-index: 1;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         #map { width: 100%; height: 100%; }
 
-        /* DOUBLE DEGREE */
-        .double-degree-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 20px;
+        /* SEARCH BAR */
+        .search-container { position: relative; }
+        .search-input {
+            width: 100%; padding: 12px 12px 12px 45px; border: 1px solid #ccc; border-radius: 12px;
+            font-size: 0.95rem; outline: none; -webkit-appearance: none;
+            background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-        .info-card { 
-            border: 1px solid var(--border); background: #fff; padding: 15px; border-radius: var(--radius);
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; }
+
+        /* FILTER CHIPS SCROLLER */
+        .filter-scroller {
+            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; 
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
         }
-        .dd-info-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); margin-bottom: 4px; }
-        .dd-info-value { font-size: 1rem; font-weight: 600; color: var(--primary); line-height: 1.3; }
-        .program-list-styled-dd { list-style: none; padding: 0; margin-top: 10px; }
-        .program-list-styled-dd li {
-            padding: 6px 0; border-bottom: 1px solid #eee; display: flex; align-items: flex-start;
-            font-size: 0.9rem; color: #444;
+        .filter-scroller::-webkit-scrollbar { display: none; }
+        .filter-tag {
+            font-size: 0.8rem; padding: 6px 14px; background: #eef2f6; border-radius: 16px;
+            cursor: pointer; white-space: nowrap; border: 1px solid transparent;
         }
-        .program-list-styled-dd li::before {
-            content: '\f19d'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-            margin-right: 10px; color: var(--accent); font-size: 0.8rem; margin-top: 3px;
+        .filter-tag.active { background: var(--primary); color: var(--white); }
+
+        /* UNIVERSITY LIST */
+        .uni-list { 
+            max-height: 500px; overflow-y: auto; background: var(--white); 
+            border-radius: var(--radius); border: 1px solid var(--border); 
+        }
+        .uni-item {
+            padding: 15px 16px; border-bottom: 1px solid #eee; display: flex; 
+            justify-content: space-between; align-items: flex-start;
+            cursor: pointer;
+        }
+        .uni-item:active { background: #f5f5f5; }
+        .uni-name { font-weight: 700; color: var(--primary); display: block; margin-bottom: 4px; line-height: 1.3; }
+        .uni-meta { font-size: 0.85rem; color: var(--text-light); }
+        .rank-badge { 
+            background: var(--accent); color: var(--white); padding: 3px 8px; 
+            border-radius: 4px; font-size: 0.75rem; font-weight: bold; white-space: nowrap; margin-left: 10px;
         }
 
-        /* FAQ */
-        .faq-container { max-width: 800px; margin: 20px auto; }
-        .faq-category { margin-bottom: 30px; }
-        .cat-title { border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin-bottom: 20px; display: inline-block; font-size: 1.1rem; color: var(--secondary); }
+        /* CARD STYLES (DD & FAQ) */
+        .info-card {
+            background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 16px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+        .dd-info-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.5px; margin-bottom: 5px; }
+        .dd-info-value { font-size: 1.05rem; font-weight: 600; color: var(--primary); line-height: 1.3; }
+        
+        .program-list-styled-dd { list-style: none; padding: 0; margin-top: 10px; }
+        .program-list-styled-dd li {
+            padding: 8px 0; border-bottom: 1px solid #eee; display: flex; align-items: flex-start;
+            font-size: 0.9rem; color: #444; word-break: break-word; /* FIXES OVERFLOW */
+        }
+        .program-list-styled-dd li:last-child { border-bottom: none; }
+        .program-list-styled-dd li::before {
+            content: '\f19d'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            margin-right: 10px; color: var(--accent); font-size: 0.8rem; margin-top: 3px; flex-shrink: 0;
+        }
+
+        /* FAQ STYLES (FIXED) */
         .faq-card {
             background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
-            margin-bottom: 10px; overflow: hidden;
+            margin-bottom: 10px; overflow: hidden; width: 100%;
         }
         .faq-header {
-            padding: 15px; display: flex; justify-content: space-between; align-items: center;
-            font-weight: 600; font-size: 0.95rem; cursor: pointer;
+            padding: 16px; display: flex; justify-content: space-between; align-items: center;
+            font-weight: 600; font-size: 0.95rem; cursor: pointer; width: 100%;
+        }
+        .faq-header span {
+            padding-right: 15px; line-height: 1.4;
         }
         .faq-body {
             max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
-            padding: 0 15px; font-size: 0.9rem; color: #555; background: #fafafa;
+            background: #fafafa; padding: 0 16px; font-size: 0.9rem; color: #444; line-height: 1.6;
         }
-        .faq-card.open .faq-body { padding: 15px; max-height: 500px; border-top: 1px solid #eee; }
+        .faq-card.open .faq-body { padding: 16px; max-height: 1000px; border-top: 1px solid #eee; }
 
-        /* TIMELINE */
-        .timeline { position: relative; max-width: 800px; margin: 30px auto; padding: 10px 0; }
-        .timeline::before {
-            content: ''; position: absolute; top: 0; bottom: 0; left: 20px; width: 2px; background: var(--border);
-        }
-        .timeline-item { position: relative; padding: 0 20px 0 50px; margin-bottom: 30px; }
+        /* TIMELINE (FIXED) */
+        .timeline { position: relative; margin: 20px 0 20px 10px; padding-left: 20px; border-left: 2px solid var(--border); }
+        .timeline-item { position: relative; margin-bottom: 25px; }
         .timeline-dot {
-            position: absolute; left: 11px; top: 0; width: 16px; height: 16px; background: var(--white);
-            border: 3px solid var(--secondary); border-radius: 50%; z-index: 2;
-        }
-        .timeline-content {
-            background: var(--white); padding: 15px; border-radius: var(--radius); border: 1px solid var(--border);
+            position: absolute; left: -26px; top: 0; width: 14px; height: 14px; background: var(--white);
+            border: 3px solid var(--accent); border-radius: 50%;
         }
         .step-num {
-            display: inline-block; background: var(--accent); color: var(--white);
-            padding: 2px 10px; border-radius: 12px; font-weight: bold; font-size: 0.7rem; margin-bottom: 8px;
+            display: inline-block; background: var(--secondary); color: var(--white);
+            padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; margin-bottom: 6px;
         }
 
         /* MODAL (Passport Style) */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); z-index: 2000;
-            display: none; justify-content: center; align-items: flex-end; /* Mobile: slide from bottom */
-            opacity: 0; transition: opacity 0.3s;
+            background: rgba(0,0,0,0.6); z-index: 2000;
+            display: none; justify-content: center; align-items: flex-end; /* Slide from bottom */
         }
-        .modal-overlay.open { display: flex; opacity: 1; }
+        .modal-overlay.open { display: flex; }
         
         .modal-window {
-            background: var(--white); width: 100%; height: 90vh; /* Mobile height */
-            border-radius: 16px 16px 0 0; display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s ease-out;
+            background: var(--white); width: 100%; height: 92vh; /* Tall modal */
+            border-radius: 16px 16px 0 0; display: flex; flex-direction: column;
+            animation: slideUp 0.3s ease-out; overflow: hidden;
         }
-
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
         .modal-header {
             background: var(--primary); color: var(--white); padding: 20px;
-            display: flex; justify-content: space-between; align-items: flex-start;
-            flex-shrink: 0;
+            display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0;
         }
-        .m-title h2 { color: var(--white); margin: 0; font-size: 1.4rem; }
-        .m-subtitle { color: var(--accent); margin-top: 5px; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 10px; }
-        .close-btn { 
-            background: rgba(255,255,255,0.1); border: none; color: var(--white); width: 36px; height: 36px;
-            border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; 
-        }
-
-        .modal-body { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-        
-        .modal-nav {
-            background: #f4f6f9; border-bottom: 1px solid var(--border);
-            display: flex; overflow-x: auto; padding: 0; flex-shrink: 0;
-            -webkit-overflow-scrolling: touch;
+        .modal-tabs {
+            background: #f4f6f9; display: flex; overflow-x: auto; flex-shrink: 0;
+            border-bottom: 1px solid var(--border);
         }
         .m-tab {
-            padding: 12px 15px; cursor: pointer; font-weight: 500; color: var(--text-light);
-            background: none; border: none; border-bottom: 3px solid transparent; 
-            font-size: 0.9rem; white-space: nowrap; flex-shrink: 0;
+            padding: 14px 20px; cursor: pointer; font-weight: 500; color: var(--text-light);
+            background: none; border: none; white-space: nowrap; border-bottom: 3px solid transparent;
         }
         .m-tab.active { background: var(--white); color: var(--primary); border-bottom-color: var(--accent); font-weight: 700; }
-
-        .modal-content { flex: 1; padding: 20px; overflow-y: auto; background: var(--white); }
+        
+        .modal-content { flex: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
         .tab-panel { display: none; }
-        .tab-panel.active { display: block; animation: fadeIn 0.3s; }
+        .tab-panel.active { display: block; }
         
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
 
-        .program-list-styled { list-style: none; padding: 0; }
-        .program-list-styled li {
-            padding: 10px 0; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; font-size: 0.9rem;
-        }
-        .program-list-styled li::before {
-            content: '\f19d'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-            margin-right: 10px; color: var(--accent); font-size: 0.8rem; margin-top: 3px;
-        }
-
-        /* GOLDEN MARKER */
+        /* Leaflet Marker Fix */
         .golden-marker-icon {
             background-color: transparent !important; border: none !important;
-            color: var(--accent); font-size: 30px; text-shadow: 0 0 4px rgba(0,0,0,0.5);
-        }
-
-        /* RESPONSIVE BREAKPOINTS */
-        @media (min-width: 900px) {
-            .top-bar { display: block; } /* Show top bar only on desktop */
-            .nav-menu { margin-left: auto; overflow: visible; }
-            .nav-item { border-radius: 0; padding: 8px 0; background: none !important; margin-left: 20px; }
-            .nav-item.active { color: var(--secondary); background: none; }
-            .nav-item.active::after {
-                content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--accent);
-            }
-            .dashboard-grid { grid-template-columns: 350px 1fr; grid-template-areas: "sidebar map"; }
-            .sidebar-panel { grid-area: sidebar; height: auto; }
-            .map-panel { grid-area: map; height: auto; }
-            .modal-window { 
-                width: 800px; height: 80vh; max-width: 90%; 
-                border-radius: 8px; justify-content: center;
-                animation: fadeIn 0.2s;
-            }
-            .modal-overlay { align-items: center; } /* Center modal on desktop */
-            .modal-body { flex-direction: row; }
-            .modal-nav { flex-direction: column; width: 180px; border-right: 1px solid var(--border); border-bottom: none; }
-            .m-tab { border-bottom: none; border-left: 4px solid transparent; text-align: left; }
-            .m-tab.active { border-left-color: var(--accent); border-bottom: none; }
-        }
-
-        @media (max-width: 899px) {
-            .top-bar { display: none; } /* Hide top bar on mobile */
-            .dashboard-grid { 
-                grid-template-columns: 1fr; 
-                grid-template-areas: "map" "sidebar";
-                height: auto; 
-                display: block; /* Stack block */
-            }
-            .map-panel { height: 350px; margin-bottom: 15px; } /* Fixed height for map on mobile */
-            .sidebar-panel { height: 500px; } /* Fixed height for list */
-            .container { padding: 0 12px; }
-            .logo-box { width: 36px; height: 36px; font-size: 18px; }
+            color: var(--accent); font-size: 30px; text-shadow: 0 0 3px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
 
-    <!-- Desktop Only Info Bar -->
-    <div class="top-bar">
-        <div class="container top-flex">
-            <span><i class="fas fa-university"></i> Официальный ресурс Академической Мобильности AlmaU</span>
-            <span>mobility@almau.edu.kz | Офис 107</span>
-        </div>
-    </div>
-
-    <!-- Sticky Header -->
     <header class="main-header">
         <div class="container header-flex">
             <div class="logo-area">
                 <div class="logo-box">A</div>
                 <div class="brand-text">
                     <h1>AlmaU Global</h1>
-                    <p>International Dept</p>
+                    <p>International Cooperation Department</p>
                 </div>
             </div>
-            <nav class="nav-menu">
-                <a class="nav-item active" onclick="switchTab('map-section', this)">Карта Партнеров</a>
-                <a class="nav-item" onclick="switchTab('double-degree-section', this)">Двойной Диплом</a>
-                <a class="nav-item" onclick="switchTab('plan-section', this)">Дорожная Карта</a>
-                <a class="nav-item" onclick="switchTab('faq-section', this)">FAQ</a>
-            </nav>
         </div>
     </header>
 
+    <!-- HORIZONTAL SCROLL NAV -->
+    <div class="nav-scroller">
+        <nav class="nav-menu">
+            <a class="nav-item active" onclick="switchTab('map-section', this)">Карта Партнеров</a>
+            <a class="nav-item" onclick="switchTab('double-degree-section', this)">Двойной Диплом</a>
+            <a class="nav-item" onclick="switchTab('plan-section', this)">Дорожная Карта</a>
+            <a class="nav-item" onclick="switchTab('faq-section', this)">База Знаний (FAQ)</a>
+        </nav>
+    </div>
+
     <div class="container">
         
-        <!-- MAP SECTION -->
+        <!-- === MAP SECTION === -->
         <section id="map-section" class="content-section active">
             <div class="dashboard-grid">
-                <!-- Map comes first on mobile visually via order, but defined here for desktop -->
-                <main class="map-panel">
+                
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchBox" class="search-input" placeholder="Поиск по стране, ВУЗу...">
+                </div>
+
+                <div class="filter-scroller">
+                    <span class="filter-tag active" onclick="filterList('all', this)">Все</span>
+                    <span class="filter-tag" onclick="filterList('Europe', this)">Европа</span>
+                    <span class="filter-tag" onclick="filterList('Asia', this)">Азия</span>
+                    <span class="filter-tag" onclick="filterList('CIS', this)">СНГ</span>
+                    <span class="filter-tag" onclick="filterList('Americas', this)">Америка</span>
+                    <span class="filter-tag" onclick="filterList('Africa', this)">Африка</span>
+                </div>
+
+                <div class="map-panel">
                     <div id="map"></div>
-                </main>
+                </div>
 
-                <aside class="sidebar-panel">
-                    <div class="panel-header">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <h3><i class="fas fa-globe-europe"></i> Навигатор ВУЗов</h3>
-                            <span id="count-display" style="background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px; font-size:0.8rem;">0</span>
-                        </div>
-                    </div>
-                    
-                    <div class="search-box">
-                        <div class="input-group">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="searchBox" class="form-control" placeholder="Поиск по стране, ВУЗу...">
-                        </div>
-                    </div>
+                <div style="padding: 10px 0; font-size: 0.9rem; color: #666; display: flex; justify-content: space-between;">
+                    <span><i class="fas fa-list"></i> Список ВУЗов</span>
+                    <span id="count-display">0 найдено</span>
+                </div>
 
-                    <div class="filter-tags">
-                        <span class="filter-tag active" onclick="filterList('all', this)">Все</span>
-                        <span class="filter-tag" onclick="filterList('Europe', this)">Европа</span>
-                        <span class="filter-tag" onclick="filterList('Asia', this)">Азия</span>
-                        <span class="filter-tag" onclick="filterList('CIS', this)">СНГ</span>
-                        <span class="filter-tag" onclick="filterList('Americas', this)">Америка</span>
-                        <span class="filter-tag" onclick="filterList('Africa', this)">Африка</span>
-                    </div>
-
-                    <div class="university-list" id="uni-list-container">
-                        <!-- JS renders items here -->
-                    </div>
-                </aside>
+                <div class="uni-list" id="uni-list-container">
+                    <!-- List items generated by JS -->
+                </div>
             </div>
         </section>
         
-        <!-- DOUBLE DEGREE SECTION -->
+        <!-- === DOUBLE DEGREE SECTION === -->
         <section id="double-degree-section" class="content-section">
             <div style="text-align: center; margin: 30px 0 20px;">
-                <h2 style="font-size:1.5rem; color: var(--secondary);">Программа Двойного Диплома AlmaU</h2>
-                <p style="color:var(--text-light); font-size:0.9rem;">Получите два диплома, обучаясь в AlmaU и ведущих университетах мира.</p>
+                <h2 style="font-size: 1.4rem;">Программа Двойного Диплома</h2>
+                <p style="color:var(--text-light); font-size: 0.9rem;">Получите два диплома, обучаясь в AlmaU и ведущих университетах мира.</p>
             </div>
             
-            <div id="double-degree-content"></div>
-
-            <div style="margin-top: 30px; padding: 15px; background: #e6f0fa; border-radius: var(--radius); border-left: 5px solid var(--accent); font-size: 0.9rem;">
-                <h4 style="margin-top: 0; color: var(--primary);"><i class="fas fa-info-circle"></i> Особенности:</h4>
-                <ul style="list-style-type: disc; padding-left: 20px; color: #444; margin: 0;">
-                    <li>Обучение 1-2 года в вузе-партнере.</li>
-                    <li>Два полноценных диплома (AlmaU + Партнер).</li>
-                    <li>Обучение в вузе-партнере платное.</li>
-                    <li>Высокие требования по успеваемости и языку.</li>
+            <div id="double-degree-content">
+                <!-- DD Cards generated by JS -->
+            </div>
+            
+            <div class="info-card" style="background: #e6f0fa; border-left: 4px solid var(--accent);">
+                <h4 style="margin-top: 0; color: var(--primary);"><i class="fas fa-info-circle"></i> Важно знать:</h4>
+                <ul style="padding-left: 20px; font-size: 0.9rem; color: #444; margin-bottom: 0;">
+                    <li style="margin-bottom: 8px;">Программа обычно предполагает обучение <strong>1-2 года</strong> в вузе-партнере.</li>
+                    <li style="margin-bottom: 8px;">Обучение в вузе-партнере является <strong>платным</strong> (согласно тарифам партнера).</li>
+                    <li>Требуется высокий GPA и знание языка.</li>
                 </ul>
             </div>
         </section>
 
-        <!-- ROADMAP SECTION -->
+        <!-- === ROADMAP SECTION === -->
         <section id="plan-section" class="content-section">
-            <div style="text-align: center; margin: 30px 0 20px;">
-                <h2 style="font-size:1.5rem;">Процесс подачи заявки</h2>
-                <p style="color:var(--text-light); font-size:0.9rem;">Официальный регламент прохождения конкурса</p>
+            <div style="margin: 30px 0 20px;">
+                <h2 style="font-size: 1.4rem;">Процесс подачи заявки</h2>
+                <p style="color:var(--text-light); font-size: 0.9rem;">Официальный регламент прохождения конкурса</p>
             </div>
+            
             <div class="timeline">
-                <div id="timeline-container"></div>
+                <div id="timeline-container">
+                    <!-- Steps generated by JS -->
+                </div>
             </div>
         </section>
 
-        <!-- FAQ SECTION -->
+        <!-- === FAQ SECTION === -->
         <section id="faq-section" class="content-section">
-            <div class="faq-container" id="faq-root"></div>
+            <div style="margin: 30px 0 20px;">
+                <h2 style="font-size: 1.4rem;">Вопросы и Ответы</h2>
+            </div>
+            <div id="faq-root">
+                <!-- FAQ generated by JS -->
+            </div>
         </section>
 
     </div>
 
-    <!-- MODAL -->
+    <!-- === MODAL === -->
     <div class="modal-overlay" id="uniModal">
         <div class="modal-window">
             <div class="modal-header">
-                <div class="m-title">
-                    <h2 id="m-name">University Name</h2>
-                    <div class="m-subtitle">
-                        <span><i class="fas fa-map-marker-alt"></i> <span id="m-city">City</span>, <span id="m-country">Country</span></span>
+                <div class="m-title" style="flex:1; padding-right:10px;">
+                    <h2 id="m-name" style="color: white; font-size: 1.3rem; margin: 0; line-height: 1.2;">University Name</h2>
+                    <div style="color: var(--accent); margin-top: 5px; font-size: 0.9rem;">
+                        <i class="fas fa-map-marker-alt"></i> <span id="m-city">City</span>, <span id="m-country">Country</span>
                     </div>
                 </div>
-                <button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                <i class="fas fa-times" onclick="closeModal()" style="font-size: 1.5rem; cursor: pointer;"></i>
             </div>
-            <div class="modal-body">
-                <div class="modal-nav">
-                    <button class="m-tab active" onclick="modalTab('tab-overview', this)">Обзор</button>
-                    <button class="m-tab" onclick="modalTab('tab-bachelor', this)">Бакалавриат</button>
-                    <button class="m-tab" onclick="modalTab('tab-master', this)">Магистратура</button>
-                    <button class="m-tab" onclick="modalTab('tab-finance', this)">Бюджет</button>
-                </div>
+            
+            <div class="modal-tabs">
+                <button class="m-tab active" onclick="modalTab('tab-overview', this)">Обзор</button>
+                <button class="m-tab" onclick="modalTab('tab-bachelor', this)">Бакалавриат</button>
+                <button class="m-tab" onclick="modalTab('tab-master', this)">Магистратура</button>
+                <button class="m-tab" onclick="modalTab('tab-finance', this)">Бюджет</button>
+            </div>
+            
+            <div class="modal-content">
                 
-                <div class="modal-content">
-                    <div id="tab-overview" class="tab-panel active">
-                        <div class="info-grid">
-                            <div class="info-card">
-                                <div class="dd-info-label">Квота (мест)</div>
-                                <div class="dd-info-value"><span id="m-students">2</span></div>
-                            </div>
-                            <div class="info-card">
-                                <div class="dd-info-label">Язык</div>
-                                <div class="dd-info-value">English B2</div>
-                            </div>
-                            <div class="info-card">
-                                <div class="dd-info-label">Тип</div>
-                                <div class="dd-info-value">Обмен</div>
-                            </div>
-                             <div class="info-card">
-                                <div class="dd-info-label">Статус</div>
-                                <div class="dd-info-value" style="color:var(--success)">Активный</div>
-                            </div>
+                <div id="tab-overview" class="tab-panel active">
+                    <div class="info-grid">
+                        <div class="info-card" style="margin:0; text-align:center;">
+                            <div class="dd-info-label">Квота (мест)</div>
+                            <div class="dd-info-value" style="font-size:1.5rem;"><span id="m-students">0</span></div>
                         </div>
-                        <p style="color:var(--text-light); font-size:0.9rem; margin-top:10px;">
-                            <b>Tuition Waiver:</b> Вуз является стратегическим партнером. Студентам предоставляется возможность бесплатного обучения.
+                        <div class="info-card" style="margin:0; text-align:center;">
+                            <div class="dd-info-label">Язык</div>
+                            <div class="dd-info-value">Eng B2</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4 style="border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 5px;">Тип программы</h4>
+                        <p style="font-size: 0.95rem; color: #444; margin-top: 10px;">
+                            Семестровый обмен. Вуз является стратегическим партнером AlmaU. Студентам предоставляется возможность бесплатного обучения (<strong>Tuition Waiver</strong>).
                         </p>
                     </div>
+                </div>
 
-                    <div id="tab-bachelor" class="tab-panel">
-                        <ul class="program-list-styled" id="list-bachelor"></ul>
-                    </div>
+                <div id="tab-bachelor" class="tab-panel">
+                    <h4>Доступные дисциплины</h4>
+                    <ul class="program-list-styled-dd" id="list-bachelor"></ul>
+                </div>
 
-                    <div id="tab-master" class="tab-panel">
-                        <ul class="program-list-styled" id="list-master"></ul>
-                    </div>
+                <div id="tab-master" class="tab-panel">
+                    <h4>Доступные дисциплины</h4>
+                    <ul class="program-list-styled-dd" id="list-master"></ul>
+                </div>
 
-                    <div id="tab-finance" class="tab-panel">
-                        <div class="info-card">
-                            <div class="dd-info-label">Расходы в месяц (примерно)</div>
-                            <div style="display:flex; justify-content:space-between; margin-top:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                                <span>Жилье</span> <span style="font-weight:bold" id="cost-living">€300-500</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; margin-top:5px; padding-bottom:5px; border-bottom:1px solid #eee;">
-                                <span>Питание</span> <span style="font-weight:bold" id="cost-food">€200-300</span>
-                            </div>
-                             <div style="display:flex; justify-content:space-between; margin-top:5px; padding-bottom:5px;">
-                                <span>Транспорт</span> <span style="font-weight:bold">€30-50</span>
-                            </div>
+                <div id="tab-finance" class="tab-panel">
+                    <div class="info-card">
+                        <h4><i class="fas fa-wallet"></i> Расходы (в месяц)</h4>
+                        <p style="font-size:0.8rem; color:#888;">*Примерные данные</p>
+                        
+                        <div style="display:flex; justify-content:space-between; padding: 10px 0; border-bottom:1px solid #eee;">
+                            <span>Жилье</span>
+                            <span style="font-weight:bold" id="cost-living">€300-500</span>
                         </div>
-                        <div style="margin-top:15px; font-size:0.85rem; color:#666;">
-                            <p><i class="fas fa-passport"></i> <b>Виза:</b> Требуется студенческая виза типа D. Подтверждение финансовой состоятельности обязательно.</p>
+                        <div style="display:flex; justify-content:space-between; padding: 10px 0; border-bottom:1px solid #eee;">
+                            <span>Питание</span>
+                            <span style="font-weight:bold">€200-300</span>
                         </div>
+                        <div style="display:flex; justify-content:space-between; padding: 10px 0;">
+                            <span>Транспорт</span>
+                            <span style="font-weight:bold">€30-50</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4><i class="fas fa-passport"></i> Виза</h4>
+                        <p style="font-size:0.9rem; color:#444;">Требуется студенческая виза типа D. Подтверждение финансовой состоятельности обязательно.</p>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Leaflet JS -->
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script>
-    /* ---------------- DATA STORE (FULL DATA) ---------------- */
+    /* ---------------- FULL DATA (RESTORED) ---------------- */
     const universities = [
         { region: "Europe", country: "Австрия", name: "Management Center Innsbruck", city: "Innsbruck", students: "2", lat:47.2682, lon:11.3923, bachelorPrograms: ["Management", "Business"], masterPrograms: ["International Business"] },
         { region: "CIS", country: "Азербайджан", name: "ADA University", city: "Baku", students: "5", lat:40.4093, lon:49.8671, bachelorPrograms: ["Business Administration","Economics","Finance","Computer Science","International Studies","Laws"], masterPrograms: ["Global Management","MBA Finance","Public Administration"] },
@@ -596,7 +534,7 @@
             ]
         }
     ];
-    
+
     const doubleDegreePrograms = [
         // Бакалавриат (Bachelor)
         { level: "Бакалавриат", partner: "Thunderbird School of Global Management, Arizona State University", country: "США", programs: ["Bachelor of Science in International Trade", "Bachelor of Global Management"] },
@@ -620,122 +558,89 @@
     ];
 
     /* ---------------- APP LOGIC ---------------- */
-    let map;
-    let markers = L.layerGroup();
-    let currentFilter = 'all';
-
     // Telegram App Integration
     const tg = window.Telegram?.WebApp;
-
-    function initTelegram() {
-        if (tg) {
-            tg.ready();
-            tg.expand(); // Fullscreen
-            
-            // Set header color to match app
-            if (tg.setHeaderColor) tg.setHeaderColor('#ffffff'); 
-            if (tg.setBackgroundColor) tg.setBackgroundColor('#f4f6f9');
-
-            // Handle Back Button specifically for Modals
-            tg.BackButton.onClick(function() {
-                // If modal is open, close it
-                if(document.getElementById('uniModal').classList.contains('open')) {
-                    closeModal();
-                } else {
-                    // Default behavior (close app?) - optional, usually just hide button
-                    tg.BackButton.hide();
-                }
-            });
-        }
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        tg.enableClosingConfirmation();
+        tg.BackButton.onClick(() => closeModal());
     }
 
-    const GoldenIcon = L.DivIcon.extend({
-        options: {
-            iconSize: [30, 30],
-            iconAnchor: [15, 30], 
-            popupAnchor: [0, -25], 
-            className: 'golden-marker-icon',
-            html: '<i class="fa fa-map-marker-alt"></i>'
-        }
-    });
-    const goldenIcon = new GoldenIcon();
+    let map;
+    let markers = L.layerGroup();
 
+    // Map Init
     function initMap() {
         if (document.getElementById('map')) {
-            // Center map initially (generic Europe/Asia view)
-            map = L.map('map', { zoomControl: false }).setView([48, 30], 3); 
-            
+            map = L.map('map', { zoomControl: false }).setView([48, 20], 3);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '',
-                maxZoom: 19
+                attribution: '', maxZoom: 19
             }).addTo(map);
-
             map.addLayer(markers);
-            
-            // Add zoom control to bottom right for mobile ergonomics
             L.control.zoom({ position: 'bottomright' }).addTo(map);
         }
     }
 
+    // App Init
     function init() {
-        initTelegram();
         initMap();
         renderList(universities);
         renderTimeline();
         renderFAQ();
-        renderDoubleDegreePrograms();
-        
-        // Force activation of "Все" filter button visual state
-        const allBtn = document.querySelector('.filter-tag');
+        renderDD();
+        // Activate "All" filter visual
+        const allBtn = document.querySelector('.filter-tag:first-child');
         if(allBtn) allBtn.classList.add('active');
     }
 
     /* ---------------- RENDERING ---------------- */
     function renderList(data) {
-        const uniListContainer = document.getElementById('uni-list-container');
-        uniListContainer.innerHTML = '';
+        const list = document.getElementById('uni-list-container');
+        list.innerHTML = '';
         markers.clearLayers();
+        document.getElementById('count-display').textContent = `${data.length} найдено`;
 
-        document.getElementById('count-display').textContent = `${data.length} ВУЗов`;
+        // Golden Marker Icon
+        const icon = L.divIcon({ 
+            className: 'golden-marker-icon', 
+            html: '<i class="fas fa-map-marker-alt"></i>',
+            iconSize: [30, 30], iconAnchor: [15, 30]
+        });
 
         data.forEach(u => {
+            // Map Marker
             if (u.lat && u.lon) {
-                const marker = L.marker([u.lat, u.lon], { icon: goldenIcon })
-                    .bindTooltip(`<b>${u.name}</b>`, { direction: 'top', offset: [0, -25] })
-                    .on('click', () => {
-                        openModal(u);
-                    });
-                markers.addLayer(marker);
+                const m = L.marker([u.lat, u.lon], { icon: icon }).addTo(markers);
+                m.on('click', () => openModal(u));
             }
 
-            const div = document.createElement('div');
-            div.className = 'uni-item';
-            div.innerHTML = `
-                <span class="uni-name">${u.name}</span>
-                <div class="uni-meta">
-                    <span>${u.city}, ${u.country}</span>
+            // List Item
+            const el = document.createElement('div');
+            el.className = 'uni-item';
+            el.innerHTML = `
+                <div style="flex:1; padding-right:10px;">
+                    <span class="uni-name">${u.name}</span>
+                    <div class="uni-meta"><i class="fas fa-map-pin" style="font-size:0.7rem;"></i> ${u.city}, ${u.country}</div>
+                </div>
+                <div style="text-align:right;">
                     <span class="rank-badge">${u.students} мест</span>
                 </div>
             `;
-            div.onclick = () => {
-                // On mobile, scroll to map first
-                if (window.innerWidth < 900) {
-                    document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' });
-                }
-                if (map) {
-                    map.flyTo([u.lat, u.lon], 6, { duration: 1.5 });
-                    setTimeout(() => openModal(u), 1000);
-                } else {
-                    openModal(u);
-                }
+            el.onclick = () => {
+                if(map) map.flyTo([u.lat, u.lon], 6, {duration: 1.2});
+                // Smooth scroll to map on mobile
+                document.getElementById('map-section').scrollIntoView({ behavior: 'smooth' });
+                // Open modal after delay
+                setTimeout(() => openModal(u), 1200);
             };
-            uniListContainer.appendChild(div);
+            list.appendChild(el);
         });
-
-        // Smart Map Fitting
-        if (map && data.length > 0) {
-            const bounds = data.map(uni => [uni.lat, uni.lon]);
-            if(bounds.length > 0) map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
+        
+        // Fit Map Bounds
+        if(data.length > 0 && map) {
+            const bounds = data.map(u => [u.lat, u.lon]);
+            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
         }
     }
 
@@ -743,76 +648,70 @@
         if (btn) {
             document.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            currentFilter = region;
         }
-
-        const term = document.getElementById('searchBox').value.toLowerCase();
         
+        const term = document.getElementById('searchBox').value.toLowerCase();
         const filtered = universities.filter(u => {
-            const matchRegion = region === 'all' || u.region === region;
-            const matchSearch = u.name.toLowerCase().includes(term) || 
-                                u.country.toLowerCase().includes(term) ||
-                                (u.bachelorPrograms && u.bachelorPrograms.join(' ').toLowerCase().includes(term));
-            return matchRegion && matchSearch;
+            const matchReg = region === 'all' || u.region === region;
+            const matchSearch = u.name.toLowerCase().includes(term) || u.country.toLowerCase().includes(term);
+            return matchReg && matchSearch;
         });
-
         renderList(filtered);
     }
-
+    
+    // Search input listener
     document.getElementById('searchBox').addEventListener('input', () => {
         const activeBtn = document.querySelector('.filter-tag.active');
-        filterList(activeBtn ? (activeBtn.textContent.trim() === 'Все' ? 'all' : activeBtn.textContent.trim()) : 'all', null);
+        const reg = activeBtn ? (activeBtn.textContent === 'Все' ? 'all' : activeBtn.textContent) : 'all';
+        filterList(reg, null); // Pass null as btn to keep current selection
     });
 
-    /* ---------------- COMPONENTS ---------------- */
     function renderTimeline() {
-        document.getElementById('timeline-container').innerHTML = steps.map(step => `
+        document.getElementById('timeline-container').innerHTML = steps.map(s => `
             <div class="timeline-item">
                 <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                    <span class="step-num">Этап ${step.num}</span>
-                    <div style="font-weight:bold; font-size:1rem; margin-top:5px; margin-bottom:5px;">${step.title}</div>
-                    <div style="font-size:0.9rem; color:#666;">${step.desc}</div>
-                </div>
+                <div class="step-num">ЭТАП ${s.num}</div>
+                <div style="font-weight:700; color:var(--primary); font-size:1.05rem;">${s.title}</div>
+                <div style="font-size:0.9rem; color:#555; margin-top:5px;">${s.desc}</div>
             </div>
         `).join('');
     }
 
     function renderFAQ() {
         document.getElementById('faq-root').innerHTML = faqData.map(cat => `
-            <div class="faq-category">
-                <h3 class="cat-title">${cat.category}</h3>
-                ${cat.items.map(item => `
-                    <div class="faq-card">
-                        <div class="faq-header" onclick="this.parentElement.classList.toggle('open')">
-                            <span>${item.q}</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <div class="faq-body"><p style="margin:10px 0;">${item.a}</p></div>
+            <h3 style="font-size:1rem; color:var(--secondary); margin:20px 0 10px 5px; border-bottom:1px solid #ddd; padding-bottom:5px;">${cat.category}</h3>
+            ${cat.items.map(i => `
+                <div class="faq-card">
+                    <div class="faq-header" onclick="this.parentElement.classList.toggle('open')">
+                        <span>${i.q}</span>
+                        <i class="fas fa-chevron-down" style="color:#aaa;"></i>
                     </div>
-                `).join('')}
-            </div>
+                    <div class="faq-body"><p>${i.a}</p></div>
+                </div>
+            `).join('')}
         `).join('');
     }
 
-    function renderDoubleDegreePrograms() {
+    function renderDD() {
         const container = document.getElementById('double-degree-content');
         container.innerHTML = '';
-        const levels = [...new Set(doubleDegreePrograms.map(p => p.level))];
-        
-        levels.forEach(level => {
-            let html = `<h3 style="font-size:1.1rem; color:var(--secondary); margin:30px 0 15px; border-bottom:1px solid #ccc; display:inline-block; padding-bottom:5px;">${level}</h3>
-                        <div class="double-degree-grid">`;
-            doubleDegreePrograms.filter(p => p.level === level).forEach(p => {
-                html += `
-                    <div class="info-card">
-                        <div class="dd-info-label">${p.country}</div>
-                        <div class="dd-info-value" style="font-size:1.05rem;">${p.partner}</div>
-                        <ul class="program-list-styled-dd">${p.programs.map(pr => `<li>${pr}</li>`).join('')}</ul>
-                    </div>`;
-            });
-            html += `</div>`;
-            container.innerHTML += html;
+        // Group by level
+        ['Бакалавриат', 'Магистратура'].forEach(lvl => {
+            const progs = doubleDegreePrograms.filter(p => p.level === lvl);
+            if(progs.length > 0) {
+                container.innerHTML += `<h3 style="color:var(--secondary); font-size:1.1rem; margin:25px 0 10px;">${lvl}</h3>`;
+                progs.forEach(p => {
+                    container.innerHTML += `
+                        <div class="info-card">
+                            <div class="dd-info-label">${p.country}</div>
+                            <div class="dd-info-value">${p.partner}</div>
+                            <ul class="program-list-styled-dd">
+                                ${p.programs.map(pr => `<li>${pr}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                });
+            }
         });
     }
 
@@ -823,61 +722,60 @@
         document.getElementById('m-country').textContent = u.country;
         document.getElementById('m-students').textContent = u.students;
 
-        const fill = (id, arr) => {
+        const fillList = (id, arr) => {
             const el = document.getElementById(id);
-            el.innerHTML = (!arr || arr.length === 0) 
-                ? '<li style="color:#999; padding-left:0;"><i class="fas fa-exclamation-circle" style="color:#e94e4e; margin-right: 8px;"></i>Информация уточняется в офисе.</li>' 
-                : arr.map(t => `<li>${t}</li>`).join('');
+            if (!arr || arr.length === 0) {
+                el.innerHTML = '<li style="color:#888;">Программы уточняются в офисе.</li>';
+            } else {
+                el.innerHTML = arr.map(p => `<li>${p}</li>`).join('');
+            }
         };
-        fill('list-bachelor', u.bachelorPrograms);
-        fill('list-master', u.masterPrograms);
+        fillList('list-bachelor', u.bachelorPrograms);
+        fillList('list-master', u.masterPrograms);
 
-        // Dynamic Cost Logic (Estimation based on country for demo purposes)
-        let rent = "€300-500";
-        if(u.country === "Франция" || u.country === "Германия" || u.country === "Австрия" || u.country === "Бельгия") rent = "€500-800";
-        else if(u.country === "Польша" || u.country === "Литва" || u.country === "Латвия" || u.country === "Турция") rent = "€250-450";
-        else if(u.country === "Швейцария") rent = "CHF 700-1200";
-        
-        document.getElementById('cost-living').textContent = rent;
+        // Dynamic cost estimation based on country
+        let cost = "€300-500";
+        if(['Франция','Германия','Австрия','Бельгия','Финляндия'].includes(u.country)) cost = "€700-900";
+        else if(['Испания','Италия','Португалия'].includes(u.country)) cost = "€500-700";
+        else if(['США','Гонконг','Япония','Корея'].includes(u.country)) cost = "$800-1200";
+        document.getElementById('cost-living').textContent = cost;
 
-        // Show Modal
         document.getElementById('uniModal').classList.add('open');
-        modalTab('tab-overview', document.querySelector('.modal-nav .m-tab:first-child'));
+        modalTab('tab-overview', document.querySelector('.m-tab')); // Reset to first tab
         
-        // Show Telegram Back Button
-        if (tg && tg.BackButton) tg.BackButton.show();
+        if (tg) tg.BackButton.show();
     }
 
     function closeModal() {
         document.getElementById('uniModal').classList.remove('open');
-        // Hide Telegram Back Button
-        if (tg && tg.BackButton) tg.BackButton.hide();
+        if (tg) tg.BackButton.hide();
     }
 
     function modalTab(id, btn) {
-        document.querySelectorAll('.modal-nav .m-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.m-tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
-    /* ---------------- TAB SWITCHING ---------------- */
+    /* ---------------- NAVIGATION ---------------- */
     function switchTab(id, btn) {
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        
-        // Scroll navigation into view on mobile
-        if(window.innerWidth < 900) {
-            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-        }
 
-        if(id === 'map-section') setTimeout(() => { if(map) map.invalidateSize(); }, 200);
+        // Scroll nav item into view (User Experience)
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+        if(id === 'map-section' && map) {
+            setTimeout(() => map.invalidateSize(), 200);
+        }
     }
 
-    // Initialize
+    // Start App
     init();
+
     </script>
 </body>
 </html>
